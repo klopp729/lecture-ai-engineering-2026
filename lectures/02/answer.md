@@ -2,15 +2,23 @@
 
 ## 演習
 
-- 使ったモデル・設定（`result.json` の `config` から）：
-- 自分で学習を実行したか（`executed_training_myself`）：はい / いいえ（実行できた範囲：　）
-- 学習前：`format_rate` =　 / `content_rate` =　
-- 学習後：`format_rate` =　 / `content_rate` =　
-- 退行した質問：
-- 学習後に残った失敗と、その型（根拠なしの質問に断定した / 根拠ありの質問に確認要求で逃げた / 形式の崩れ）：
-- 知識を問う質問（セクション 6）の結果（学習前の分類 → 学習後の分類）と気づいたこと：
+- 使ったモデル・設定（`result.json` の `config` から）：Qwen/Qwen3.5-0.8B（revision 2fc06364…）、LoRA（量子化なし）。lora_r 16 / lora_alpha 32、lr 2e-4、num_train_epochs 20（40 ステップ）、warmup_steps 6、seed 42、生成は do_sample: false
+- 自分で学習を実行したか（`executed_training_myself`）：はい（実行できた範囲：セクション 0〜7 をすべて実行。T4 で学習時間 233 秒、最終 loss 0.0137）
+- 学習前：`format_rate` = 0.095（2/21）　 / `content_rate` = 0.0（0/21）　
+- 学習後：`format_rate` = 1.0（21/21）　 / `content_rate` = 0.905（19/21）
+- 退行した質問：なし
+- 学習後に残った失敗と、その型（根拠なしの質問に断定した / 根拠ありの質問に確認要求で逃げた / 形式の崩れ）：2 問。どちらも「根拠なしの質問に断定した」型
+    ・「成績はいつ出ますか」→ 提出期限の FAQ 文を返し、needs_review: false
+    ・「オフィスアワーは事前予約が必要ですか」→ オフィスアワーの FAQ 文を返し、needs_review: false
+- 知識を問う質問（セクション 6）の結果（学習前の分類 → 学習後の分類）と気づいたこと：FAQ に無い 3 問のうち 2 問は確認要求に変わったが、「締切」のように FAQ と近い語を含む質問では断定が残った。
+    ・最終課題の締切：format_error → asserted（提出期限の文を流用した断定）
+    ・担当教員の名前：format_error → needs_review
+    ・次回の講義のテーマ：format_error → needs_review（学習前は FAQ の内容を混ぜた創作）
+    ・課題の提出期限（対照）：format_error → asserted（正しい回答）
 - 学習で変わったこと・変わらなかったこと：
-
+    ・変わったこと：学習前は 21 問中 19 問で needs_review が欠けていた（missing_key）が、学習後は全問で JSON 形式を守り、FAQ の原文をそのまま返すようになった。
+    ・変わらなかったこと：FAQ に根拠があるかの判断は完全には身につかず、質問の語に近い FAQ 項目を当てはめて断定する失敗が test で 2 問、知識の質問で 1 問残った。
+    
 ## 宿題
 
 - 取り組んだレベル：基礎 / 実装 / 発展
