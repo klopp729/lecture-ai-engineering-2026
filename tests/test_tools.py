@@ -39,6 +39,21 @@ def test_lecture_summary():
     assert "まだありません" in tools.get_lecture_summary(99)
 
 
+def test_make_quiz_returns_question_and_answer_for_requested_lecture():
+    quiz = json.loads(tools.make_quiz(2))
+    lecture_terms = [term for term in tools.load_glossary() if term["lecture"] == 2]
+
+    assert quiz["lecture"] == 2
+    assert quiz["question"].startswith("次の説明に当てはまる用語は何ですか？")
+    assert quiz["answer"] in {term["term"] for term in lecture_terms}
+    answer_term = next(term for term in lecture_terms if term["term"] == quiz["answer"])
+    assert answer_term["definition"] in quiz["question"]
+
+
+def test_make_quiz_reports_when_lecture_has_no_terms():
+    assert "第99回の用語が用語集にありません" in tools.make_quiz(99)
+
+
 def test_default_question_of_lecture1_is_answerable_from_glossary():
     """第1回の既定の質問（app.ask）は、第3回のエージェントが用語集で正しく答えられること。"""
     from app.ask import DEFAULT_QUESTION

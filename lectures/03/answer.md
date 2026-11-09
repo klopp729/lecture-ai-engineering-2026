@@ -3,9 +3,21 @@
 ## 演習
 
 - 第1回（素のLLM）とエージェントの回答の違い：
+  - 質問：「AIE2026の講座の宿題にある『3レベル』とは何ですか？」
+  - 第1回（app.ask）：AIE2026を「AIエンジニア育成講座などを指すと推測」と前置きし、講座固有の定義を知らないまま、一般的な3段階（レベル1 基礎・レベル2 応用・レベル3 発展）の例をもっともらしく示した。「どれか1つで完了」というルールには触れず、「案内ページを読む」「講師に質問する」よう勧めていた。
+  - 第3回（app.agent）：「基礎・実装・発展の3つで、どれか1つに取り組めば完了」と、data/glossary.json の homework-levels の定義どおりに答え、最後に「関連する回：第1回」を付けた。
+
 - `--trace` で見えたツール呼び出し（ツール名と引数）：
+  - 質問「LoRA とQLoRAの違いは？」で、`search_glossary({'query': 'LoRA'})` と `search_glossary({'query': 'QLoRA'})` の2回。
+
 - 1つの質問での LLM 呼び出し回数（`requests`）：
+  - LoRA/QLoRA の質問：requests=2, tool_calls=2, input_tokens=1196
+  - 確認問題の質問：requests=2, tool_calls=1, input_tokens=941
+
 - 追加したツールと、docstring に書いた説明：
+  - ツール：`make_quiz(lecture: int) -> str`
+  - docstring：「指定した回の用語から1つを選び、確認問題と答えを返す。『第2回の確認問題を出して』のように、復習用の問題を求められたときに使う。」
+  - 実装：load_glossary() から指定した回の用語を集め、random.choice で1つ選ぶ。定義を示して用語を答えさせる問題にし、問題と答えを JSON で返す。用語が無い回（lecture=0 など）ではエラーにせずメッセージを返すので、pytest のダミー引数でも落ちない。
 
 ## 宿題
 
